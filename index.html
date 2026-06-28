@@ -107,6 +107,52 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro","PingFang SC","Micros
 .tag-excel{background:rgba(52,211,153,.15);color:#34d399}
 .tag-ppt{background:rgba(245,158,11,.15);color:#f59e0b}
 .ref-shortcut{display:inline-block;background:#111122;padding:1px 8px;border-radius:5px;font-family:monospace;font-size:12px;margin:0 2px}
+
+/* 操作模拟器 */
+.sim-wrap{background:#1a1a2e;border:1px solid #2a2a3e;border-radius:16px;overflow:hidden;margin-bottom:14px}
+.sim-top{background:#2d2d44;padding:8px 12px;font-size:11px;color:#888;display:flex;align-items:center;gap:8px}
+.sim-top .dot{width:10px;height:10px;border-radius:50%}
+.sim-win{background:#fff;color:#222;font-size:13px;min-height:360px;position:relative}
+.sim-ribbon{background:#f0f0f0;border-bottom:1px solid #ddd;padding:6px 8px 4px}
+.sim-tabs{display:flex;gap:2px;margin-bottom:4px;flex-wrap:wrap}
+.sim-tab{padding:4px 14px;border-radius:4px 4px 0 0;font-size:11px;cursor:pointer;border:1px solid transparent;border-bottom:none;background:transparent;color:#666;font-family:inherit}
+.sim-tab.active{background:#fff;border-color:#ddd;color:#1a73e8;font-weight:600}
+.sim-tab.highlight{animation:tabPulse .6s ease 3}
+.sim-group{display:inline-flex;flex-direction:column;align-items:center;padding:2px 8px;border-right:1px solid #e0e0e0;min-width:50px}
+.sim-group:last-child{border-right:none}
+.sim-group .g-label{font-size:9px;color:#999;margin-top:2px}
+.sim-btn{display:flex;flex-direction:column;align-items:center;padding:4px 8px;border-radius:4px;cursor:pointer;gap:2px;border:1px solid transparent;transition:.15s;font-family:inherit;font-size:10px;color:#333;background:transparent;min-width:44px}
+.sim-btn:hover{background:#e3e3e3}
+.sim-btn .b-icon{font-size:16px;line-height:1}
+.sim-content{padding:20px;min-height:200px;position:relative}
+.sim-content .cursor-line{height:2px;background:#1a73e8;width:60%;margin:40px auto 0;position:relative}
+.sim-content .cursor-line::after{content:'';position:absolute;right:-12px;top:-5px;border-left:2px solid #1a73e8;height:14px;animation:blink .8s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.sim-content .doc-text{color:#999;font-size:14px;text-align:center;margin-top:60px}
+.sim-content .doc-text b{color:#555}
+
+/* 热区覆盖 */
+.sim-hotzone{position:absolute;border:2px dashed rgba(96,165,250,.6);border-radius:4px;cursor:pointer;transition:.2s;background:rgba(96,165,250,.08)}
+.sim-hotzone:hover{background:rgba(96,165,250,.2);border-color:#60a5fa}
+.sim-hotzone.correct-click{background:rgba(52,211,153,.2);border-color:#34d399;border-style:solid}
+.sim-hotzone.wrong-click{background:rgba(248,113,113,.2);border-color:#f87171;animation:shake .3s}
+
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@keyframes tabPulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 0 3px rgba(96,165,250,.4)}}
+
+.sim-instruction{background:linear-gradient(135deg,rgba(96,165,250,.1),rgba(167,139,250,.1));padding:12px 16px;border-radius:10px;margin-bottom:12px;font-size:14px;color:#e0e0e0;line-height:1.6}
+.sim-instruction .step-badge{display:inline-block;background:#60a5fa;color:#fff;font-size:10px;padding:2px 8px;border-radius:99px;font-weight:700;margin-right:6px}
+.sim-feedback-msg{padding:10px 14px;margin:10px 0;border-radius:8px;font-size:13px;display:none;line-height:1.6}
+.sim-feedback-msg.show{display:block}
+.sim-feedback-msg.ok{background:rgba(52,211,153,.1);border-left:3px solid #34d399;color:#34d399}
+.sim-feedback-msg.err{background:rgba(248,113,113,.1);border-left:3px solid #f87171;color:#f87171}
+.sim-progress-steps{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}
+.sim-step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid #333;color:#666;transition:.3s}
+.sim-step-dot.done{background:#34d399;border-color:#34d399;color:#fff}
+.sim-step-dot.current{border-color:#60a5fa;color:#60a5fa;animation:tabPulse 1s infinite}
+.sim-step-dot.wrong-step{background:#f87171;border-color:#f87171;color:#fff}
+.sim-reset-btn{background:#333;color:#aaa;border:1px solid #444;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;margin-top:10px;font-family:inherit}
+.sim-reset-btn:hover{background:#444;color:#fff}
 </style>
 </head>
 <body>
@@ -118,8 +164,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro","PingFang SC","Micros
 
   <!-- 标签切换 -->
   <div class="tabs">
-    <button class="tab-btn active" id="btnQuiz" onclick="switchTab('quiz')">📝 刷题模式</button>
-    <button class="tab-btn inactive" id="btnRef" onclick="switchTab('ref')">📋 操作速查卡</button>
+    <button class="tab-btn active" id="btnQuiz" onclick="switchTab('quiz')">📝 刷题</button>
+    <button class="tab-btn inactive" id="btnRef" onclick="switchTab('ref')">📋 速查</button>
+    <button class="tab-btn inactive" id="btnSim" onclick="switchTab('sim')">🖱 模拟</button>
   </div>
 
   <!-- 刷题区域 -->
@@ -166,6 +213,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro","PingFang SC","Micros
 
   <!-- 速查卡区域 -->
   <div id="refSection" style="display:none" class="ref-grid"></div>
+
+  <!-- 操作模拟区域 -->
+  <div id="simSection" style="display:none">
+    <!-- 模拟器选择 -->
+    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap" id="simSelector"></div>
+    <!-- 当前模拟器 -->
+    <div id="simContent"></div>
+  </div>
 
   <div class="footer">二级必过 · MS Office 高项 · 让刷题像打游戏</div>
 </div>
@@ -787,17 +842,319 @@ function renderRefCards(){
 
 // ── 标签切换 ──────────────────────────
 function switchTab(tab){
+  ['quizSection','refSection','simSection'].forEach(id=>document.getElementById(id).style.display='none');
+  ['btnQuiz','btnRef','btnSim'].forEach(id=>document.getElementById(id).className='tab-btn inactive');
   if(tab==='quiz'){
     document.getElementById('quizSection').style.display='block';
-    document.getElementById('refSection').style.display='none';
     document.getElementById('btnQuiz').className='tab-btn active';
-    document.getElementById('btnRef').className='tab-btn inactive';
-  } else {
-    document.getElementById('quizSection').style.display='none';
+  } else if(tab==='ref'){
     document.getElementById('refSection').style.display='block';
     document.getElementById('btnRef').className='tab-btn active';
-    document.getElementById('btnQuiz').className='tab-btn inactive';
+  } else if(tab==='sim'){
+    document.getElementById('simSection').style.display='block';
+    document.getElementById('btnSim').className='tab-btn active';
+    if(!simInitialized){ initSimulators(); simInitialized=true; }
   }
+}
+
+// ── 操作模拟器 ────────────────────────
+let simInitialized = false;
+let currentSim = null;
+let simStep = 0;
+let simState = {};
+
+const SIMULATORS = [
+  {
+    id:'mailmerge', title:'📧 邮件合并', icon:'📧', steps:5,
+    stepsLabels:['打开邮件选项卡','选收件人','插入合并域','预览结果','完成合并'],
+    stepsTargets:['tab-mailings','btn-recipients','btn-insertfield','btn-preview','btn-finish'],
+    instructions:[
+      '第1步：点击 <b>「邮件」</b> 选项卡，进入邮件功能面板',
+      '第2步：点击 <b>「选择收件人」</b>，选"使用现有列表"',
+      '第3步：点击 <b>「插入合并域」</b>，选择数据源中的字段',
+      '第4步：点击 <b>「预览结果」</b>，检查每条数据',
+      '第5步：点击 <b>「完成并合并」</b>，生成最终文档',
+    ],
+    hints:{wrong:[
+      '不对！邮件合并的第一步是切换到「邮件」选项卡——Word顶部那一排标签中的"邮件"。',
+      '不对！先点「选择收件人」选择Excel数据源。',
+      '不对！选中位置后点「插入合并域」。',
+      '不对！点「预览结果」逐条检查。',
+      '不对！最后一步点「完成并合并」。'
+    ],correct:[
+      '✅ 正确！切换到邮件选项卡，所有邮件合并功能都在这个面板里。',
+      '✅ 正确！选择收件人就是关联你的Excel数据源。',
+      '✅ 正确！插入合并域把字段（如姓名、金额）插入模板。',
+      '✅ 正确！预览可以逐条看合并后的效果。',
+      '✅ 正确！完成并合并可以生成单个文档或直接打印。',
+    ]}
+  },
+  {
+    id:'vlookup', title:'🔍 VLOOKUP', icon:'🔍', steps:4,
+    stepsLabels:['选中单元格','打开公式选项卡','选VLOOKUP','填参数'],
+    stepsTargets:['cell-vlookup','tab-formulas','btn-vlookup-func','param-lookup'],
+    instructions:[
+      '第1步：点击 <b>要显示查找结果的单元格</b>（如C2）',
+      '第2步：点击顶部 <b>「公式」</b> 选项卡',
+      '第3步：点击 <b>「查找与引用」→VLOOKUP</b>',
+      '第4步：在弹窗中依次填 <b>查找值/查找范围/列号/0</b> 四个参数',
+    ],
+    hints:{wrong:[
+      '不对！先点你要放结果的那个单元格。',
+      '不对！点「公式」选项卡找到VLOOKUP。',
+      '不对！点「查找与引用」→选VLOOKUP函数。',
+      '不对！四个参数都要填：找什么/在哪找/第几列/0精确匹配。'
+    ],correct:[
+      '✅ 对！选中要放结果的单元格C2。',
+      '✅ 对！公式选项卡里有所有函数分类。',
+      '✅ 对！VLOOKUP在"查找与引用"类别下。',
+      '✅ 对！四个参数填完→确定。VLOOKUP会从数据表中找到匹配值并返回。',
+    ]}
+  },
+  {
+    id:'pivot', title:'📊 数据透视表', icon:'📊', steps:4,
+    stepsLabels:['点数据区','插入透视表','选新工作表','拖拽字段'],
+    stepsTargets:['cell-pivot','tab-insert','btn-pivot-new','zone-values'],
+    instructions:[
+      '第1步：点击 <b>数据区域中任意一个单元格</b>',
+      '第2步：点击 <b>「插入」</b> 选项卡',
+      '第3步：点击 <b>「数据透视表」→选"新工作表"</b>',
+      '第4步：在右侧面板中 <b>将"销售额"字段拖到"值"区域</b>',
+    ],
+    hints:{wrong:[
+      '不对！先点数据区域任意一个单元格，Excel会自动识别整个数据范围。',
+      '不对！数据透视表在「插入」菜单下。',
+      '不对！选"新工作表"→确定，数据透视表会在新Sheet中创建。',
+      '不对！把要计算的字段（如销售额）拖到"值"区域→自动求和/计数。',
+    ],correct:[
+      '✅ 对！点数据区任意一个单元格。',
+      '✅ 对！插入→数据透视表。',
+      '✅ 对！选新工作表，不破坏原数据。',
+      '✅ 对！把字段拖到值区域→自动求和。',
+    ]}
+  },
+  {
+    id:'master', title:'🎨 幻灯片母版', icon:'🎨', steps:3,
+    stepsLabels:['打开视图','进入母版','关闭母版'],
+    stepsTargets:['tab-view','btn-slidemaster','btn-close-master'],
+    instructions:[
+      '第1步：点击 <b>「视图」</b> 选项卡',
+      '第2步：点击 <b>「幻灯片母版」</b> 进入编辑',
+      '第3步：修改完后点击 <b>「关闭母版视图」</b>',
+    ],
+    hints:{wrong:[
+      '不对！母版功能在「视图」菜单下。',
+      '不对！点「幻灯片母版」进入母版编辑模式。',
+      '不对！关闭母版视图退出编辑，所有幻灯片自动应用修改。',
+    ],correct:[
+      '✅ 对！视图→幻灯片母版。',
+      '✅ 对！进入母版编辑模式，改一处全PPT同步。',
+      '✅ 对！关闭母版，所有幻灯片自动应用了你在母版中的修改。',
+    ]}
+  },
+  {
+    id:'sectionbreak', title:'📄 分节符', icon:'📄', steps:3,
+    stepsLabels:['光标定位','插入分节符','改方向'],
+    stepsTargets:['cursor-section','tab-layout','btn-breaks-next'],
+    instructions:[
+      '第1步：光标放在 <b>要改版式的页面开头</b>',
+      '第2步：点击 <b>「布局」→「分隔符」→"下一页"分节符</b>',
+      '第3步：在新节中，点 <b>「纸张方向」→"横向"</b>',
+    ],
+    hints:{wrong:[
+      '不对！先把光标放到你想改成横版的那一页开头。',
+      '不对！分节符在「布局」→「分隔符」菜单中。',
+      '不对！选"下一页"分节符→在新节中改纸张方向为横向。',
+    ],correct:[
+      '✅ 对！光标放在要改变版式的页开头。',
+      '✅ 对！布局→分隔符→下一页。前后节互不影响。',
+      '✅ 对！新节独立设置横向/纵向，其他节不受影响。',
+    ]}
+  }
+];
+
+function initSimulators(){
+  const sel = document.getElementById('simSelector');
+  sel.innerHTML = SIMULATORS.map((s,i)=>`<button class="tab-btn ${i===0?'active':'inactive'}" style="font-size:13px" onclick="loadSimulator(${i})">${s.icon} ${s.title}</button>`).join('');
+  loadSimulator(0);
+}
+
+function loadSimulator(idx){
+  currentSim = idx;
+  simStep = 0;
+  // Update selector buttons
+  document.querySelectorAll('#simSelector .tab-btn').forEach((b,i)=>{b.className=`tab-btn ${i===idx?'active':'inactive'}`;});
+  renderSimulator();
+}
+
+function renderSimulator(){
+  const sim = SIMULATORS[currentSim];
+  const allDone = simStep >= sim.steps;
+
+  let stepsHtml = sim.stepsLabels.map((l,i)=>{
+    let cls = i < simStep ? 'done' : i === simStep && !allDone ? 'current' : '';
+    return `<div class="sim-step-dot ${cls}">${i+1}</div>`;
+  }).join('');
+
+  let ribbonHtml = buildSimRibbon(sim);
+  let instText = allDone ? '🎉 <b>全部完成！</b>你已掌握了「'+sim.title.replace(/[^一-龥]/g,'')+'」的完整操作流程。在真实Office中按这个顺序操作即可。' : sim.instructions[simStep];
+
+  let fbHtml = '';
+  if(simState.feedback){
+    fbHtml = `<div class="sim-feedback-msg show ${simState.feedbackType}">${simState.feedback}</div>`;
+    // Auto-clear feedback after 2.5s unless it's the completion message
+    if(!simState.feedback.includes('全部完成')){
+      setTimeout(()=>{simState.feedback='';renderSimulator();},2500);
+    }
+  }
+
+  document.getElementById('simContent').innerHTML = `
+    <div class="sim-instruction"><span class="step-badge">步骤 ${allDone?sim.steps:simStep+1}/${sim.steps}</span>${instText}</div>
+    <div class="sim-progress-steps">${stepsHtml}</div>
+    ${fbHtml}
+    <div class="sim-wrap">
+      <div class="sim-top"><span class="dot" style="background:#f87171"></span><span class="dot" style="background:#fbbf24"></span><span class="dot" style="background:#34d399"></span>Microsoft ${sim.id==='master'?'PowerPoint':'Word/Excel'} 2016 — 操作模拟</div>
+      <div class="sim-win">${ribbonHtml}</div>
+    </div>
+    ${allDone?`<button class="btn btn-next show" style="margin-top:10px" onclick="simStep=0;simState={};loadSimulator(currentSim)">🔄 重新练习</button>`:''}
+  `;
+
+  // Bind click handlers for hotzones
+  setTimeout(()=>{
+    document.querySelectorAll('.sim-hotzone').forEach(el=>{
+      el.onclick = function(){
+        const target = this.dataset.target;
+        handleSimClick(target);
+      };
+    });
+  },50);
+}
+
+function buildSimRibbon(sim){
+  const id = sim.id;
+  let tabs = ['文件','开始','插入','设计','布局','引用','邮件','审阅','视图','开发工具'];
+  if(id==='master') tabs = ['文件','开始','插入','设计','切换','动画','幻灯片放映','审阅','视图'];
+
+  const totalSteps = sim.steps;
+
+  // Render different ribbon layouts based on simulator
+  let ribbonContent = '';
+
+  if(id==='mailmerge'){
+    ribbonContent = `
+      <div class="sim-tabs">${tabs.map((t,i)=>{
+        let extra='';
+        if(simStep===0 && t==='邮件') extra='highlight';
+        if(t==='邮件') extra+=' active';
+        return `<button class="sim-tab ${extra}" data-target="tab-mailings" id="tab-mailings-trigger">${t}</button>`;
+      }).join('')}</div>
+      <div style="display:flex;padding:4px 8px;flex-wrap:wrap;align-items:flex-end">
+        <div class="sim-group"><button class="sim-btn" data-target="btn-recipients"><span class="b-icon">📋</span>选择<br>收件人</button></div>
+        <div class="sim-group"><button class="sim-btn" data-target="btn-editlist"><span class="b-icon">✏️</span>编辑<br>收件人列表</button></div>
+        <div class="sim-group"><button class="sim-btn" data-target="btn-insertfield"><span class="b-icon">📌</span>插入<br>合并域</button></div>
+        <div class="sim-group"><button class="sim-btn" data-target="btn-rules"><span class="b-icon">⚙️</span>规则</button></div>
+        <div class="sim-group"><button class="sim-btn" data-target="btn-preview"><span class="b-icon">👁</span>预览<br>结果</button></div>
+        <div class="sim-group"><button class="sim-btn" data-target="btn-finish"><span class="b-icon">✅</span>完成<br>并合并</button></div>
+      </div>`;
+  } else if(id==='vlookup'){
+    ribbonContent = `
+      <div class="sim-tabs">${tabs.map(t=>`<button class="sim-tab ${t==='公式'&&simStep===1?'highlight active':t==='公式'?'active':''}" data-target="tab-formulas">${t}</button>`).join('')}</div>
+      <div style="display:flex;padding:4px 8px;flex-wrap:wrap;align-items:flex-end">
+        <div class="sim-group"><button class="sim-btn" data-target="btn-vlookup-func"><span class="b-icon">🔍</span>查找与<br>引用 ▼</button></div>
+        <div class="sim-group"><button class="sim-btn" data-target="btn-insert-func"><span class="b-icon">𝑓𝑥</span>插入<br>函数</button></div>
+        <div class="sim-group"><button class="sim-btn"><span class="b-icon">Σ</span>自动<br>求和</button></div>
+      </div>`;
+  } else if(id==='pivot'){
+    ribbonContent = `
+      <div class="sim-tabs">${tabs.map(t=>`<button class="sim-tab ${t==='插入'&&simStep===1?'highlight active':t==='插入'?'active':''}" data-target="tab-insert">${t}</button>`).join('')}</div>
+      <div style="display:flex;padding:4px 8px;flex-wrap:wrap;align-items:flex-end">
+        <div class="sim-group"><button class="sim-btn" data-target="btn-pivot"><span class="b-icon">📊</span>数据<br>透视表</button></div>
+        <div class="sim-group"><button class="sim-btn"><span class="b-icon">📈</span>推荐的<br>数据透视表</button></div>
+        <div class="sim-group"><button class="sim-btn" data-target="btn-pivot-new"><span class="b-icon">📋</span>表格</button></div>
+      </div>`;
+  } else if(id==='master'){
+    ribbonContent = `
+      <div class="sim-tabs">${tabs.map(t=>`<button class="sim-tab ${t==='视图'&&simStep===0?'highlight active':t==='视图'?'active':''}">${t}</button>`).join('')}</div>
+      <div style="display:flex;padding:4px 8px;flex-wrap:wrap;align-items:flex-end">
+        <div class="sim-group"><button class="sim-btn" data-target="btn-slidemaster"><span class="b-icon">🎨</span>幻灯片<br>母版</button></div>
+        <div class="sim-group"><button class="sim-btn"><span class="b-icon">📝</span>讲义<br>母版</button></div>
+        <div class="sim-group"><button class="sim-btn"><span class="b-icon">📄</span>备注<br>母版</button></div>
+      </div>`;
+  } else if(id==='sectionbreak'){
+    ribbonContent = `
+      <div class="sim-tabs">${tabs.map(t=>`<button class="sim-tab ${t==='布局'&&simStep===1?'highlight active':t==='布局'?'active':''}" data-target="tab-layout">${t}</button>`).join('')}</div>
+      <div style="display:flex;padding:4px 8px;flex-wrap:wrap;align-items:flex-end">
+        <div class="sim-group"><button class="sim-btn" data-target="btn-breaks"><span class="b-icon">⤵</span>分隔符</button></div>
+        <div class="sim-group"><button class="sim-btn" data-target="btn-orientation"><span class="b-icon">📐</span>纸张<br>方向</button></div>
+        <div class="sim-group"><button class="sim-btn"><span class="b-icon">📏</span>页边距</button></div>
+        <div class="sim-group"><button class="sim-btn"><span class="b-icon">📄</span>纸张<br>大小</button></div>
+      </div>`;
+  }
+
+  // Build hotzones based on current step
+  let hotzones = '';
+  const target = sim.stepsTargets[simStep];
+
+  if(id==='mailmerge'){
+    if(simStep===0) hotzones += `<div class="sim-hotzone" data-target="tab-mailings" style="top:${34}px;left:${tabs.indexOf('邮件')*70+84}px;width:52px;height:22px" title="邮件选项卡"></div>`;
+    else if(simStep===1) hotzones += `<div class="sim-hotzone" data-target="btn-recipients" style="top:${64}px;left:12px;width:60px;height:42px" title="选择收件人"></div>`;
+    else if(simStep===2) hotzones += `<div class="sim-hotzone" data-target="btn-insertfield" style="top:${64}px;left:144}px;width:60px;height:42px" title="插入合并域"></div>`;
+    else if(simStep===3) hotzones += `<div class="sim-hotzone" data-target="btn-preview" style="top:${64}px;left:284}px;width:60px;height:42px" title="预览结果"></div>`;
+    else if(simStep===4) hotzones += `<div class="sim-hotzone" data-target="btn-finish" style="top:${64}px;left:352}px;width:60px;height:42px" title="完成并合并"></div>`;
+  } else if(id==='vlookup'){
+    if(simStep===0) hotzones += `<div class="sim-hotzone" data-target="cell-vlookup" style="top:${90}px;left:80px;width:80px;height:22px;border:2px solid #1a73e8" title="单元格C2"></div>`;
+    else if(simStep===1) hotzones += `<div class="sim-hotzone" data-target="tab-formulas" style="top:${34}px;left:${tabs.indexOf('公式')*70+84}px;width:52px;height:22px" title="公式选项卡"></div>`;
+    else if(simStep===2) hotzones += `<div class="sim-hotzone" data-target="btn-vlookup-func" style="top:${64}px;left:12px;width:70px;height:42px" title="查找与引用"></div>`;
+    else if(simStep===3) hotzones += `<div class="sim-hotzone" data-target="param-lookup" style="top:${120}px;left:160px;width:220px;height:120px;border:2px solid #60a5fa" title="函数参数对话框"></div>`;
+  } else if(id==='pivot'){
+    if(simStep===0) hotzones += `<div class="sim-hotzone" data-target="cell-pivot" style="top:${90}px;left:80px;width:80px;height:22px;border:2px solid #1a73e8" title="数据区域任意单元格"></div>`;
+    else if(simStep===1) hotzones += `<div class="sim-hotzone" data-target="tab-insert" style="top:${34}px;left:${tabs.indexOf('插入')*70+84}px;width:52px;height:22px" title="插入选项卡"></div>`;
+    else if(simStep===2) hotzones += `<div class="sim-hotzone" data-target="btn-pivot-new" style="top:${64}px;left:124}px;width:50px;height:42px" title="数据透视表"></div>`;
+    else if(simStep===3) hotzones += `<div class="sim-hotzone" data-target="zone-values" style="top:${100}px;right:20px;width:140px;height:100px;border:2px solid #60a5fa" title="值区域"></div>`;
+  } else if(id==='master'){
+    if(simStep===0) hotzones += `<div class="sim-hotzone" data-target="tab-view" style="top:${34}px;left:${tabs.indexOf('视图')*70+84}px;width:52px;height:22px" title="视图选项卡"></div>`;
+    else if(simStep===1) hotzones += `<div class="sim-hotzone" data-target="btn-slidemaster" style="top:${64}px;left:12px;width:60px;height:42px" title="幻灯片母版"></div>`;
+    else if(simStep===2) hotzones += `<div class="sim-hotzone" data-target="btn-close-master" style="top:${64}px;right:12px;width:80px;height:30px;background:rgba(248,113,113,.15);border-color:#f87171" title="关闭母版视图"></div>`;
+  } else if(id==='sectionbreak'){
+    if(simStep===0) hotzones += `<div class="sim-hotzone" data-target="cursor-section" style="top:${120}px;left:80px;width:2px;height:18px;border:none;border-left:2px dashed #1a73e8" title="光标位置"></div>`;
+    else if(simStep===1) hotzones += `<div class="sim-hotzone" data-target="tab-layout" style="top:${34}px;left:${tabs.indexOf('布局')*70+84}px;width:52px;height:22px" title="布局选项卡"></div>`;
+    else if(simStep===2) hotzones += `<div class="sim-hotzone" data-target="btn-breaks-next" style="top:${64}px;left:12px;width:60px;height:42px" title="分隔符→下一页"></div>`;
+  }
+
+  // Build content area with doc text
+  let contentHtml = '';
+  if(id==='vlookup'){
+    contentHtml = `<div class="sim-content"><div style="font-size:11px;color:#999;margin-bottom:8px">A1:C10 数据表</div><table style="border-collapse:collapse;font-size:11px;margin-bottom:20px"><tr style="background:#e8f0fe"><td style="border:1px solid #ddd;padding:3px 8px">A</td><td style="border:1px solid #ddd;padding:3px 8px">B</td><td style="border:1px solid #ddd;padding:3px 8px">C</td></tr><tr><td style="border:1px solid #ddd;padding:3px 8px">学号</td><td style="border:1px solid #ddd;padding:3px 8px">姓名</td><td style="border:1px solid #ddd;padding:3px 8px">成绩</td></tr><tr><td style="border:1px solid #ddd;padding:3px 8px">001</td><td style="border:1px solid #ddd;padding:3px 8px">张三</td><td style="border:1px solid #ddd;padding:3px 8px">85</td></tr><tr><td style="border:1px solid #ddd;padding:3px 8px">002</td><td style="border:1px solid #ddd;padding:3px 8px">李四</td><td style="border:1px solid #ddd;padding:3px 8px">92</td></tr></table><div style="font-size:12px;color:#555">在<b>C2</b>输入：<span style="background:#fff3cd;padding:2px 6px;border-radius:3px;font-family:monospace">=VLOOKUP(<i>?</i>, <i>?</i>, <i>?</i>, <i>?</i>)</span></div></div>`;
+  } else if(id==='pivot'){
+    contentHtml = `<div class="sim-content"><table style="border-collapse:collapse;font-size:11px;margin-bottom:12px"><tr style="background:#e8f0fe"><td style="border:1px solid #ddd;padding:3px 8px">月份</td><td style="border:1px solid #ddd;padding:3px 8px">产品</td><td style="border:1px solid #ddd;padding:3px 8px">销售额</td></tr><tr><td style="border:1px solid #ddd;padding:3px 8px">1月</td><td style="border:1px solid #ddd;padding:3px 8px">A</td><td style="border:1px solid #ddd;padding:3px 8px">1000</td></tr><tr><td style="border:1px solid #ddd;padding:3px 8px">1月</td><td style="border:1px solid #ddd;padding:3px 8px">B</td><td style="border:1px solid #ddd;padding:3px 8px">1500</td></tr><tr><td style="border:1px solid #ddd;padding:3px 8px">2月</td><td style="border:1px solid #ddd;padding:3px 8px">A</td><td style="border:1px solid #ddd;padding:3px 8px">1200</td></tr></table><div style="position:absolute;right:16px;top:60px;background:#f5f5f5;border:1px solid #ddd;border-radius:6px;padding:8px;font-size:10px;width:130px"><b>数据透视表字段</b><br><div style="margin:4px 0;padding:3px;background:#e8f0fe;border-radius:3px">☑ 月份</div><div style="margin:4px 0;padding:3px;background:#e8f0fe;border-radius:3px">☑ 产品</div><div style="margin:4px 0;padding:3px;background:#e8f0fe;border-radius:3px">☑ 销售额</div><hr style="margin:4px 0"><div style="margin:4px 0;padding:3px;border:1px dashed #ccc;border-radius:3px;font-size:9px;color:#999">拖字段到以下区域</div><div style="margin:4px 0;padding:3px;background:#fff;border:1px solid #ddd;border-radius:3px">📋 行: 月份</div><div style="margin:4px 0;padding:3px;background:#fff;border:1px solid #ddd;border-radius:3px" id="zone-values">💰 值: <i style="color:#999">拖拽字段到此处</i></div></div></div>`;
+  } else if(id==='sectionbreak'){
+    contentHtml = `<div class="sim-content"><div class="doc-text" style="margin-top:30px"><b>第一章 绪论</b><br><span style="font-size:12px">（纵向页面）</span></div><div style="border-top:2px dashed #ddd;margin:20px 30px;padding-top:8px;text-align:center;font-size:10px;color:#999">—— 分节符(下一页) ——</div><div class="doc-text" style="margin-top:10px"><b>附录：数据表格</b><br><span style="font-size:12px;color:#1a73e8">（📐 此处应该改为横向）</span><br><span style="display:inline-block;margin-top:8px;padding:20px 40px;border:1px solid #ddd;font-size:10px;color:#999">[ 很宽的表格放不下 ]</span></div></div>`;
+  } else {
+    contentHtml = `<div class="sim-content"><div class="doc-text">📝 模拟 Word 文档编辑区<br><span style="font-size:12px">（按上方步骤操作）</span></div></div>`;
+  }
+
+  return `<div style="position:relative">${ribbonContent}${contentHtml}${hotzones}</div>`;
+}
+
+function handleSimClick(target){
+  const sim = SIMULATORS[currentSim];
+  const expected = sim.stepsTargets[simStep];
+
+  if(target === expected){
+    // Correct click!
+    simState.feedback = sim.hints.correct[simStep];
+    simState.feedbackType = 'ok';
+    simStep++;
+    // Check if all done
+    if(simStep >= sim.steps){
+      simState.feedback = '🎉 <b>全部完成！</b>你已完全掌握了「'+sim.title.replace(/[^一-龥]/g,'')+'」的操作流程。在真实Office中照这个顺序点即可。';
+    }
+  } else {
+    // Wrong click
+    simState.feedback = sim.hints.wrong[simStep];
+    simState.feedbackType = 'err';
+  }
+  renderSimulator();
 }
 
 renderRefCards();
