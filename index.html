@@ -82,53 +82,89 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro","PingFang SC","Micros
 /* 底部 */
 .footer{text-align:center;padding:16px;color:#555;font-size:12px}
 .footer a{color:#666;text-decoration:none}
+
+/* 标签切换 */
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tab-btn{flex:1;padding:10px 0;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s;text-align:center}
+.tab-btn.active{background:linear-gradient(135deg,#60a5fa,#a78bfa);color:#fff}
+.tab-btn.inactive{background:#1a1a2e;color:#666;border:1px solid #2a2a3e}
+
+/* 速查卡 */
+.ref-grid{display:flex;flex-direction:column;gap:10px}
+.ref-card{background:#1a1a2e;border:1px solid #2a2a3e;border-radius:14px;overflow:hidden}
+.ref-card .ref-header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.ref-card .ref-header .tag{font-size:10px;padding:3px 8px;border-radius:99px;font-weight:600}
+.ref-card .ref-title{font-size:15px;font-weight:600;flex:1;margin:0 10px}
+.ref-card .ref-arrow{color:#666;transition:.2s;font-size:12px}
+.ref-card.open .ref-arrow{transform:rotate(180deg)}
+.ref-card .ref-body{display:none;padding:0 16px 14px;font-size:13px;color:#bbb;line-height:1.8}
+.ref-card.open .ref-body{display:block}
+.ref-step{display:flex;gap:8px;margin:6px 0;align-items:flex-start}
+.ref-step .step-num{width:22px;height:22px;border-radius:50%;background:#60a5fa;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.ref-step .step-text{flex:1}
+.tag-word{background:rgba(96,165,250,.15);color:#60a5fa}
+.tag-excel{background:rgba(52,211,153,.15);color:#34d399}
+.tag-ppt{background:rgba(245,158,11,.15);color:#f59e0b}
+.ref-shortcut{display:inline-block;background:#111122;padding:1px 8px;border-radius:5px;font-family:monospace;font-size:12px;margin:0 2px}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
     <h1>⚡ 二级必过</h1>
-    <div class="sub">计算机二级 MS Office 高项</div>
+    <div class="sub">计算机二级 MS Office · 选择题20分＋操作考点速查</div>
   </div>
 
-  <!-- 积分面板 -->
-  <div class="score-bar">
-    <div class="score-card points"><div class="num" id="points">0</div><div class="label">🏆 积分</div></div>
-    <div class="score-card streak"><div class="num" id="streak">0</div><div class="label">🔥 连击</div></div>
-    <div class="score-card accuracy"><div class="num" id="accuracy">—</div><div class="label">✅ 正确率</div></div>
+  <!-- 标签切换 -->
+  <div class="tabs">
+    <button class="tab-btn active" id="btnQuiz" onclick="switchTab('quiz')">📝 刷题模式</button>
+    <button class="tab-btn inactive" id="btnRef" onclick="switchTab('ref')">📋 操作速查卡</button>
   </div>
 
-  <!-- 进度条 -->
-  <div class="progress-wrap">
-    <div class="progress-info"><span id="progLabel">📋 每日挑战 0/20</span><span id="xpLabel">⚡ Lv.1</span></div>
-    <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
-  </div>
-
-  <!-- 题目区 -->
-  <div id="quizArea">
-    <div class="q-card" id="qCard">
-      <div class="q-num" id="qNum">第 1 题 · 选择题</div>
-      <div class="q-text" id="qText"></div>
-      <div class="options" id="options"></div>
+  <!-- 刷题区域 -->
+  <div id="quizSection">
+    <!-- 积分面板 -->
+    <div class="score-bar">
+      <div class="score-card points"><div class="num" id="points">0</div><div class="label">🏆 积分</div></div>
+      <div class="score-card streak"><div class="num" id="streak">0</div><div class="label">🔥 连击</div></div>
+      <div class="score-card accuracy"><div class="num" id="accuracy">—</div><div class="label">✅ 正确率</div></div>
     </div>
-    <div class="feedback" id="feedback"></div>
-    <button class="btn btn-next" id="btnNext" onclick="nextQuestion()">下一题 →</button>
+
+    <!-- 进度条 -->
+    <div class="progress-wrap">
+      <div class="progress-info"><span id="progLabel">📋 每日挑战 0/30</span><span id="xpLabel">⚡ Lv.1</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+    </div>
+
+    <!-- 题目区 -->
+    <div id="quizArea">
+      <div class="q-card" id="qCard">
+        <div class="q-num" id="qNum">第 1 题 · 选择题</div>
+        <div class="q-text" id="qText"></div>
+        <div class="options" id="options"></div>
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <button class="btn btn-next" id="btnNext" onclick="nextQuestion()">下一题 →</button>
+    </div>
+
+    <!-- 完成页 -->
+    <div class="complete" id="complete">
+      <div class="emoji" id="completeEmoji">🎉</div>
+      <div class="big-num" id="completeScore"></div>
+      <div class="big-label">今日挑战完成</div>
+      <div class="stats">
+        <div class="stat-item"><div class="stat-val" id="statCorrect" style="color:#34d399"></div><div class="stat-lbl">✅ 正确</div></div>
+        <div class="stat-item"><div class="stat-val" id="statWrong" style="color:#f87171"></div><div class="stat-lbl">❌ 错误</div></div>
+        <div class="stat-item"><div class="stat-val" id="statMaxStreak" style="color:#f59e0b"></div><div class="stat-lbl">🔥 最长连击</div></div>
+        <div class="stat-item"><div class="stat-val" id="statTotal" style="color:#60a5fa"></div><div class="stat-lbl">🏆 总分</div></div>
+      </div>
+      <button class="btn btn-next show" onclick="resetDaily()" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🔄 再来一轮</button>
+      <p style="color:#666;font-size:12px;margin-top:14px">明天继续挑战，连击奖励翻倍！</p>
+    </div>
   </div>
 
-  <!-- 完成页 -->
-  <div class="complete" id="complete">
-    <div class="emoji" id="completeEmoji">🎉</div>
-    <div class="big-num" id="completeScore"></div>
-    <div class="big-label">今日挑战完成</div>
-    <div class="stats">
-      <div class="stat-item"><div class="stat-val" id="statCorrect" style="color:#34d399"></div><div class="stat-lbl">✅ 正确</div></div>
-      <div class="stat-item"><div class="stat-val" id="statWrong" style="color:#f87171"></div><div class="stat-lbl">❌ 错误</div></div>
-      <div class="stat-item"><div class="stat-val" id="statMaxStreak" style="color:#f59e0b"></div><div class="stat-lbl">🔥 最长连击</div></div>
-      <div class="stat-item"><div class="stat-val" id="statTotal" style="color:#60a5fa"></div><div class="stat-lbl">🏆 总分</div></div>
-    </div>
-    <button class="btn btn-next show" onclick="resetDaily()" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🔄 再来一轮</button>
-    <p style="color:#666;font-size:12px;margin-top:14px">明天继续挑战，连击奖励翻倍！</p>
-  </div>
+  <!-- 速查卡区域 -->
+  <div id="refSection" style="display:none" class="ref-grid"></div>
 
   <div class="footer">二级必过 · MS Office 高项 · 让刷题像打游戏</div>
 </div>
@@ -243,6 +279,47 @@ const QUESTIONS = [
   {id:103,type:"Excel",q:"在Excel中，=IFERROR(VLOOKUP(A1,B:C,2,0),\"未找到\") 中IFERROR的作用是？",opts:["A. 检查拼写","B. 当VLOOKUP返回错误值时显示\"未找到\"","C. 提高计算速度","D. 标记公式为错误"],ans:1,explain:"IFERROR(公式, 出错时的值)。VLOOKUP找不到时返回#N/A，IFERROR把它替换成\"未找到\"。常用搭档。"},
   {id:104,type:"PPT",q:"PPT中，以下哪个是正确的字体嵌入方式？",opts:["A. 直接复制粘贴","B. 文件→选项→保存→将字体嵌入文件","C. 截图保存文字","D. 字体无法嵌入"],ans:1,explain:"嵌入字体→换到别的电脑也能正确显示。可选'仅嵌入演示文稿中使用的字符'或'嵌入所有字符'(方便编辑)。"},
   {id:105,type:"Excel",q:"Excel中，\"冻结窗格\"的作用是？",opts:["A. 保护工作表","B. 滚动时保持某些行/列始终可见","C. 锁定单元格","D. 隐藏数据"],ans:1,explain:"「视图」→「冻结窗格」。冻结首行=标题行始终可见，冻结首列=第一列始终可见。大量数据必备。"},
+  // ── 操作考点选择题 (操作题80分的知识点, 用选择题形式刷) ──
+  {id:201,type:"Word操作",q:"在Word中做邮件合并, 第一步应该做什么？",opts:["A. 插入合并域","B. 选择收件人→使用现有列表","C. 预览结果","D. 完成并合并"],ans:1,explain:"邮件合并六步:①选择文档类型→②选择收件人(数据源)→③插入合并域→④预览→⑤完成合并。数据源是Excel表或Access数据库。"},
+  {id:202,type:"Excel操作",q:"在Excel中做数据透视表, 以下哪步操作顺序正确？",opts:["A. 先排序再插入透视表","B. 插入→数据透视表→拖拽字段到行列值区域","C. 先筛选再插入透视表","D. 先分类汇总再插入透视表"],ans:1,explain:"「插入」→「数据透视表」→选择数据区域→在新工作表创建→拖拽字段到行/列/值/筛选区域。不需要提前排序或筛选。"},
+  {id:203,type:"Word操作",q:"长文档排版中, 要使正文各章节标题自动编号为'第1章''第2章', 应使用？",opts:["A. 手动输入","B. 多级列表关联标题样式","C. 项目符号","D. 自动更正"],ans:1,explain:"「开始」→「多级列表」→选\"第1章 标题1\"的样式→将标题1样式应用到各章标题。新增章节自动连续编号。"},
+  {id:204,type:"Excel操作",q:"VLOOKUP函数中第4个参数写0(或FALSE)表示？",opts:["A. 模糊匹配","B. 精确匹配","C. 忽略大小写","D. 反向查找"],ans:1,explain:"VLOOKUP(找什么, 在哪找, 第几列, 匹配方式)。0或FALSE=精确匹配(考试推荐)；1或TRUE=模糊匹配(要求首列升序)。"},
+  {id:205,type:"PPT操作",q:"要让多张PPT应用统一配色/字体/LOGO, 最高效的做法是？",opts:["A. 每页手动设置","B. 格式刷逐个刷","C. 在幻灯片母版中设置","D. 复制粘贴"],ans:2,explain:"「视图」→「幻灯片母版」→设置背景/字体/配色/插入LOGO→关闭母版。所有使用该版式的幻灯片自动同步。"},
+  {id:206,type:"Word操作",q:"生成自动目录前必须做什么？",opts:["A. 手动编号","B. 将标题套用\"标题1\"\"标题2\"等样式","C. 加粗所有标题","D. 插入分页符"],ans:1,explain:"目录基于样式自动生成。先给章节标题分别套标题1/标题2/标题3→「引用」→「目录」→选自动目录。更新目录:右键→更新域。"},
+  {id:207,type:"Excel操作",q:"SUMIF和SUMIFS的参数顺序有什么区别？",opts:["A. 没区别","B. SUMIF(条件列,条件,求和列); SUMIFS(求和列,条件列1,条件1,...)","C. SUMIFS求和列在最后","D. 两者参数顺序完全一样"],ans:1,explain:"SUMIFS求和列在第一个参数！SUMIF求和列在第三个。这也是考试最爱考的一个混淆点。"},
+  {id:208,type:"Word操作",q:"在Word中将某一页改为横向, 其他页保持纵向, 正确操作是？",opts:["A. 页面设置→横向→应用于整篇文档","B. 在该页前后各插入一个分节符→将该节的纸张方向改为横向","C. 只能整篇统一","D. 用文本框旋转"],ans:1,explain:"分节符=在不同节之间可以设置不同的页面方向/页边距/页眉页脚。布局→分隔符→下一页→在新节中改纸张方向。"},
+  {id:209,type:"PPT操作",q:"演示时按什么键可以快速跳转到第8张幻灯片？",opts:["A. F8","B. Ctrl+8","C. 直接按数字键8再按Enter","D. Alt+8"],ans:2,explain:"放映中直接按数字(如8)→Enter, 跳转到对应编号的幻灯片。也可以用Ctrl+G调出\"定位\"对话框。"},
+  {id:210,type:"Excel操作",q:"要对筛选后的数据进行求和, 且隐藏行不计入, 用哪个函数？",opts:["A. SUM","B. SUBTOTAL","C. SUMIF","D. AGGREGATE"],ans:1,explain:"SUBTOTAL(9, 范围)对筛选后可见单元格求和。9=SUM; 109=忽略手动隐藏行。SUM不管你筛选不筛选,全加起来。"},
+  {id:211,type:"Word操作",q:"跨页表格每页自动显示表头, 正确操作是？",opts:["A. 手动在每页第一行复制表头","B. 选中表头→表格工具→布局→重复标题行","C. 冻结窗格","D. 页眉中插入表头"],ans:1,explain:"选中表头行→「表格工具」→「布局」→「重复标题行」。每页顶部自动出现表头。'冻结窗格'是Excel的功能,别搞混。"},
+  {id:212,type:"Excel操作",q:"当公式向下填充时, 要让D2始终引用B1这个单元格, 应该写成？",opts:["A. B1","B. $B$1","C. B$1","D. $B1"],ans:2,explain:"B$1=行1绝对,列B相对。向下填充时行号1不变。$B$1=行列都绝对,也行但题设问的是向下填充。"},
+  {id:213,type:"PPT操作",q:"想把一个大段文字分成两列排版, 正确做法是？",opts:["A. 插入两个文本框","B. 选中文本框→开始→分栏→两列","C. 用表格分开","D. 按回车换行"],ans:1,explain:"PPT文本框也支持分栏—选中文本框→「开始」→「分栏」→选两列或更多列。Word中分栏在「布局」菜单下。"},
+  {id:214,type:"Excel操作",q:"做分类汇总前, 必须对什么字段先排序？",opts:["A. 汇总的值字段","B. 分类字段","C. 日期字段","D. 不需要排序"],ans:1,explain:"分类汇总前必须对分类字段排序——相同类别必须连续排列。否则汇总结果会重复计数。排序→分类汇总→成功。"},
+  {id:215,type:"Word操作",q:"如何只删除文档中所有的空行？",opts:["A. 一个一个删","B. 查找替换:查找^p^p替换为^p, 多次执行","C. 删除分页符","D. 删除分节符"],ans:1,explain:"^p=段落标记。两个连续^p^p=空行。替换成一个^p。反复执行直到查不到为止。操作题常考,快捷高效。"},
+  {id:216,type:"PPT操作",q:"放映时想看到下一页预览和备注, 观众只看到当前页, 需要什么？",opts:["A. 阅读视图","B. 演示者视图","C. 普通视图","D. 大纲视图"],ans:1,explain:"演示者视图—双屏模式下自动启用。自己屏幕=当前页+下一页预览+备注+计时。观众屏幕=只看当前幻灯片。"},
+  {id:217,type:"Excel操作",q:"Excel中, =MID(B2,3,2)表示从B2单元格的第几个字符开始取几位？",opts:["A. 第2位取3位","B. 第3位取2位","C. 第3列第2行","D. 从第2位开始"],ans:1,explain:"MID(文本, 开始位置, 字符数)。=MID(B2,3,2)=从第3个字符开始取2个字符。常用来提取身份证中的出生年月。"},
+  {id:218,type:"Word操作",q:"要把图片设置为文字紧密围绕图片轮廓排列, 选什么？",opts:["A. 嵌入型","B. 四周型","C. 紧密型","D. 上下型"],ans:2,explain:"右键图片→「文字环绕」→\"紧密型\"=文字紧贴图片轮廓。四周型=方形环绕。穿越型=类似紧密型但更紧。嵌入型=图片当文字。"},
+  {id:219,type:"Excel操作",q:"保护工作表时可以设置什么？",opts:["A. 只能完全锁定","B. 可设置密码+允许用户做特定操作(如仅选单元格)","C. 只能保护公式","D. 不能取消保烦"],ans:1,explain:"「审阅」→「保护工作表」→设密码→勾选允许的操作(选中/插入/删除等)。灵活可控。"},
+  {id:220,type:"PPT操作",q:"想要每张幻灯片自动在右下角显示幻灯片编号, 应：",opts:["A. 手动输入","B. 插入→页眉和页脚→勾选\"幻灯片编号\"→全部应用","C. 幻灯片母版中加文本框","D. 用页脚占位符"],ans:1,explain:"「插入」→「页眉和页脚」→勾\"幻灯片编号\"→\"全部应用\"。所有页自动出现编号。可从第2页开始:首页不显示勾上。"},
+  {id:221,type:"Word操作",q:"文档部分内容需要分两栏排版, 其他部分保持一栏, 关键操作是？",opts:["A. 直接选分栏","B. 在分栏内容前后插入分节符→对该节单独设置分栏","C. 用文本框","D. 用表格"],ans:1,explain:"分节符=节之间可以独立设置栏数/方向/页边距。布局→分隔符→连续→对该节设置分栏。不分节的话,整篇全变两栏。"},
+  {id:222,type:"Excel操作",q:"以下哪个是正确的嵌套IF公式？",opts:["A. =IF(A1>90,IF(A1>60,\"B\",\"C\"),\"A\")","B. =IF(A1>=90,\"A\",IF(A1>=60,\"B\",\"C\"))","C. =IF(IF(A1>90,\"A\",\"B\"),\"C\")","D. =IF(A1,90,60)会出错"],ans:1,explain:"IF从外往里判断。=IF(A1>=90,\"A\",IF(A1>=60,\"B\",\"C\"))。先判≥90,不满足再判≥60,都不满足就是C。"},
+  {id:223,type:"PPT操作",q:"给一组对象统一做动画效果(如同时飞入), 最便捷的方式是？",opts:["A. 逐个设置动画","B. 选中所有对象→Ctrl+G组合→给组合加动画","C. 用格式刷","D. 复制粘贴"],ans:1,explain:"先Ctrl+G组合多个对象成一个群组→给群组加动画→群组内所有对象同时执行同一个动画。取消组合: Ctrl+Shift+G。"},
+  {id:224,type:"Word操作",q:"要对长文档中所有\"计算机\"三个字设置为红色加粗, 最快方式是？",opts:["A. 逐个手动改","B. 查找\"计算机\"→替换→格式→字体→红色加粗→全部替换","C. 用格式刷","D. 用样式"],ans:1,explain:"Ctrl+H→查找\"计算机\"→替换为留空→点击\"更多\"→\"格式\"→\"字体\"→设红色加粗→\"全部替换\"。替换内容留空但带格式=只改格式不改文字。"},
+  {id:225,type:"Excel操作",q:"想要用数据验证做一个下拉菜单(选项列表), 操作路径是？",opts:["A. 数据→数据验证→允许→序列→来源输入选项逗号分隔","B. 插入→下拉列表","C. 审阅→数据验证","D. 开始→条件格式"],ans:0,explain:"「数据」→「数据验证」→「允许」→「序列」→来源：输入\"选项1,选项2,选项3\"用英文逗号分隔。这是做表格模板的必备技能。"},
+  {id:226,type:"Word操作",q:"审阅→\"修订\"模式下, 对文档的修改会怎样显示？",opts:["A. 直接覆盖原文","B. 以标记方式显示修改痕迹(红色/删除线/批注)","C. 不保存修改","D. 只显示不改动"],ans:1,explain:"修订模式=所有增删改都以红色标记+删除线/下划线等方式显示, 审阅者可以逐条接受或拒绝。协同编辑必备。"},
+  {id:227,type:"PPT操作",q:"要从一大堆图片中快速选出合适的图片做PPT, 哪个功能可以预览和插入？",opts:["A. 插入→图片→此设备","B. 插入→相册","C. 插入→联机图片","D. 以上都可以"],ans:1,explain:"「插入」→「相册」→可从文件夹批量选择图片→预览→每张图放一张幻灯片/或多图一页。适合做产品图集/活动照片PPT。"},
+  {id:228,type:"Excel操作",q:"工作表中公式显示为=SUM(A1:A10)而不是计算结果, 原因可能是？",opts:["A. 公式写错了","B. 单元格格式是文本, 或按了Ctrl+`切换到了显示公式模式","C. 数据不对","D. 需要按F9"],ans:1,explain:"两个可能:①单元格格式设为了文本→改为常规后重新输入公式。②按了Ctrl + ` (反引号, ESC下面) 切换到了显示公式模式,再按一次切回来。"},
+  {id:229,type:"Word操作",q:"在论文排版中, 如何让奇偶页有不同的页眉？",opts:["A. 不能设置不同","B. 页眉页脚工具→勾选\"奇偶页不同\"→分别设置","C. 手动每页改","D. 用分节符"],ans:1,explain:"双击页眉→「页眉和页脚工具」→勾选\"奇偶页不同\"。奇数页页眉=论文题目,偶数页=章节名。还有\"首页不同\"用于封面。"},
+  {id:230,type:"Excel操作",q:"=COUNTIFS(A1:A100,\">=60\",B1:B100,\"男\") 功能是？",opts:["A. 对A列求和","B. 统计A列≥60且B列为\"男\"的行数","C. 筛选数据","D. 统计B列男性个数"],ans:1,explain:"COUNTIFS(范围1,条件1,范围2,条件2,...)=多条件计数。这是COUNTIF的升级版,支持127个条件对。"},
+  {id:231,type:"PPT操作",q:"想要录制旁白解说并保存到PPT, 操作路径是？",opts:["A. 插入→音频→录制音频","B. 幻灯片放映→录制幻灯片演示→从头开始录制","C. 切换→声音","D. 插入→视频"],ans:1,explain:"「幻灯片放映」→「录制幻灯片演示」→可选\"从头开始\"或\"从当前幻灯片开始\"。录制旁白、激光笔、计时全部保存。"},
+  {id:232,type:"Word操作",q:"在一篇文档中, 第1页不显示页码, 第2页从1开始编号, 关键操作是？",opts:["A. 手动输入","B. 首页不显示页码+第2页所在节起始页码设为1","C. 删除第1页","D. 用两篇文档"],ans:1,explain:"需要分节。第一节(封面)=不设页码。第二节插入页码→「设置页码格式」→起始页码=1。勾选首页不同也可单独处理封面。"},
+  {id:233,type:"Excel操作",q:"以下哪个函数可以把\"2024年9月15日\"这个文本转为Excel可识别的日期？",opts:["A. TEXT","B. DATEVALUE","C. DATE","D. CONVERT"],ans:1,explain:"DATEVALUE(\"2024-9-15\")=将文本日期转为序列号→设置单元格格式为日期即可正常显示。DATE(年,月,日)是从数字构建日期。"},
+  {id:234,type:"PPT操作",q:"PPT中想要几张图快速统一大小并排列整齐, 最快的方法是？",opts:["A. 手动逐个调整","B. 选中多张图→图片工具→对齐→统一宽高+分布排列","C. 用SmartArt","D. 用表格定位"],ans:1,explain:"选中多张图→「图片工具」→「格式」→统一高度/宽度→「对齐」→\"顶端对齐\"或\"横向分布\"。几秒钟就能排整齐。"},
+  {id:235,type:"Excel操作",q:"以下关于条件格式的说法, 哪个是对的？",opts:["A. 一个单元格只能设一条规则","B. 可设多条规则且可调优先级","C. 条件格式只能用于数字","D. 规则不能删除"],ans:1,explain:"「条件格式」→「管理规则」→可设多条规则(数字/文本/日期/公式), 每条有优先级,靠上的先生效。'如果为真则停止'可截断后续规则。"},
+  {id:236,type:"Word操作",q:"要对两个版本文档做对比, 看有哪些修改, 应使用？",opts:["A. 手动比对","B. 审阅→比较→比较文档的两个版本","C. 并排查看","D. 修订"],ans:1,explain:"「审阅」→「比较」→选原文档和修订文档→Word自动生成对比结果,显示所有增删改的差异。比\"并排查看\"准确得多。"},
+  {id:237,type:"Excel操作",q:"想根据A列的学生成绩, 自动给前3名标记为'金''银''铜', 最佳方式是？",opts:["A. 手动筛选","B. 用RANK+IF嵌套, 或者条件格式→图标集","C. 排序","D. 数据验证"],ans:1,explain:"方法1:条件格式→图标集→3个星。方法2:=IF(RANK(A1,$A$1:$A$100)<=3,\"奖\",\"\")。实际考试两种都会考。"},
+  {id:238,type:"Word操作",q:"如何在Word中插入一个不随文字移动的Logo(放右上角固定位置)？",opts:["A. 直接粘贴","B. 把图片放在页眉中→调整位置","C. 文本框","D. 只放在第一页"],ans:1,explain:"双击页眉→插入Logo→拖动到右上角→关闭页眉。所有页自动出现。如果只想某些页有,需配合分节符和取消\"链接到前一节\"。"},
+  {id:239,type:"PPT操作",q:"想要对象逐个出现且上一个自动消失, 动画应设置为？",opts:["A. 都设\"单击时\"","B. 第一个\"出现\",第二个开始设\"出现\"+\"消失\"动画","C. 只用一个动画","D. 用切换效果"],ans:1,explain:"每个对象可加多个动画(添加动画)。前面对象=出现→消失。下一个对象=出现。动画窗格中可拖拽排序并设置\"单击开始\"或\"与上一动画同时\"来精确控制。"},
+  {id:240,type:"Excel操作",q:"=VLOOKUP(A1,B:D,3,0)中的3代表什么？",opts:["A. 第3行","B. 查找区域(B:D)中的第3列, 即D列","C. 3个条件","D. 返回第3个匹配"],ans:1,explain:"VLOOKUP的第3个参数=在查找区域中返回第几列的值。B:D中B=第1列、C=第2列、D=第3列。所以3=返回D列的数据。"},
 ];
 
 // ── 状态 ──────────────────────────────
@@ -375,6 +452,60 @@ function resetDaily(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+// ── 速查卡 ──────────────────────────
+const REF_CARDS = [
+  {title:"邮件合并 · 批量生成文档",tag:"word",tagLabel:"Word",steps:["<b>Word主文档</b> — 写好正文模板(邀请函/工资条/证书)","「邮件」→「选择收件人」→「使用现有列表」→选Excel数据源","将光标放在模板中需要插入数据的位置→「插入合并域」→选对应字段","「预览结果」→左右箭头检查每一条数据是否正确","「完成并合并」→「编辑单个文档」或「打印文档」"],shortcut:"<span class='ref-shortcut'>Alt+M</span>→<span class='ref-shortcut'>S</span>→选数据源"},
+  {title:"VLOOKUP · 跨表查找匹配",tag:"excel",tagLabel:"Excel",steps:["=VLOOKUP(<b>找什么</b>, <b>在哪找</b>, <b>第几列</b>, <b>精确/模糊</b>)","第1参数:要查找的值(如学号、产品编码)","第2参数:查找范围, 必须包含查找列和返回列","第3参数:返回查找范围中第几列的值(从1开始数)","第4参数:0或FALSE=精确匹配(考试用);1=模糊匹配(须升序)"],shortcut:"=VLOOKUP(A1,$B$1:$D$100,2,0)"},
+  {title:"多级列表 · 章节自动编号",tag:"word",tagLabel:"Word",steps:["将各章标题套用「标题1」样式,各节标题套用「标题2」样式","「开始」→「多级列表」→选\"第1章 标题1\"格式","标题自动编号为「第1章」「1.1」「1.1.1」","新增章节→自动连续编号→无需手动改序号","更改样式字体/颜色: 右键标题样式→修改"],shortcut:"<span class='ref-shortcut'>Ctrl+Alt+1</span>=标题1 <span class='ref-shortcut'>Ctrl+Alt+2</span>=标题2"},
+  {title:"数据透视表 · 汇总分析",tag:"excel",tagLabel:"Excel",steps:["点击数据区域任意单元格→「插入」→「数据透视表」","确认数据区域正确→选\"新工作表\"→确定","将字段拖入四个区域: <b>行</b>(分组依据)、<b>列</b>(交叉分类)、<b>值</b>(求和/计数/平均)、<b>筛选</b>","右键值字段→值字段设置→选计算方式(求和/计数/平均)","更新数据后: 右键透视表→刷新"],shortcut:"<span class='ref-shortcut'>Alt+N</span>→<span class='ref-shortcut'>V</span>→选数据区域"},
+  {title:"幻灯片母版 · 统一设计",tag:"ppt",tagLabel:"PPT",steps:["「视图」→「幻灯片母版」→进入母版编辑模式","母版中设置背景/字体/配色/插入LOGO","设置标题和正文占位符的字体大小和颜色","「关闭母版视图」→所有使用该版式的页自动同步","想让某页不随母版变化: 右键该页→版式→选不同版式"],shortcut:"<span class='ref-shortcut'>Alt+W</span>→<span class='ref-shortcut'>M</span>→进入母版"},
+  {title:"分节符 · 页面方向/页眉独立",tag:"word",tagLabel:"Word",steps:["将光标放到要改变版式的页开头→「布局」→「分隔符」→「下一页」(分节符)","在新节中→「布局」→「纸张方向」→选横向或纵向","双击页眉→看到\"链接到前一节\"→<b>取消勾选</b>后修改独立页眉","节之间可以独立设置: 页边距/纸张方向/页眉页脚/页面边框","删除分节符:按Ctrl+*显示编辑标记→选中分节符→Delete"],shortcut:"<span class='ref-shortcut'>Alt+P</span>→<span class='ref-shortcut'>B</span>→选分节符类型"},
+  {title:"IF嵌套 · 多条件判断",tag:"excel",tagLabel:"Excel",steps:["=IF(条件1, 结果1, IF(条件2, 结果2, 否则))","从外往里判断——先判最高优先级条件","Excel2016最多嵌套<b>64层</b>,但二级一般考2~3层","常见: =IF(A1>=90,\"A\",IF(A1>=60,\"B\",\"C\"))","条件顺序很重要——第一层满足后不再往下判"],shortcut:"=IF(条件, 真返回值, 假返回值)"},
+  {title:"目录自动生成与更新",tag:"word",tagLabel:"Word",steps:["确保各章节标题已套用<b>标题样式</b>(标题1/标题2/标题3)","光标放到目录位置→「引用」→「目录」→选\"自动目录\"","Word自动提取标题和页码,格式统一","更新目录: 右键目录→「更新域」→选\"只更新页码\"或\"更新整个目录\"","论文要求:目录+正文+参考文献都有,缺一不可"],shortcut:"<span class='ref-shortcut'>Alt+S</span>→<span class='ref-shortcut'>T</span>→选目录样式"},
+  {title:"条件格式 · 数据可视化",tag:"excel",tagLabel:"Excel",steps:["选中数据区域→「开始」→「条件格式」","「突出显示」:大于/小于/介于某值的单元格变色","「数据条」:单元格内直接显示进度条,大小直观","「色阶」:红→黄→绿渐变,快速找高低值","「图标集」:方向箭头/五星/信号灯→排名一目了然"],shortcut:"<span class='ref-shortcut'>Alt+H</span>→<span class='ref-shortcut'>L</span>→选条件类型"},
+  {title:"动画 · 元素逐个出现",tag:"ppt",tagLabel:"PPT",steps:["选中一个元素→「动画」→选\"出现\"或\"淡入\"","「动画窗格」→可拖拽调整动画顺序","「开始」设为\"单击时\"=点一下出一个,演讲控制节奏","对多个元素重复以上步骤→按演讲顺序排好","预览检查效果→排练计时可自动播放"],shortcut:"<span class='ref-shortcut'>Alt+A</span>→选动画→<span class='ref-shortcut'>Alt+A</span>→<span class='ref-shortcut'>C</span>→动画窗格"},
+  {title:"数据验证 · 下拉菜单",tag:"excel",tagLabel:"Excel",steps:["选中要做下拉菜单的单元格→「数据」→「数据验证」","「允许」→选\"序列\"","「来源」→手动输入\"选项1,选项2,选项3\"(英文逗号分隔)","或用鼠标选择工作表中已有的选项列表区域","点击单元格→出现下拉箭头→只能选预设选项→防输入错误"],shortcut:"<span class='ref-shortcut'>Alt+A</span>→<span class='ref-shortcut'>V</span>→<span class='ref-shortcut'>V</span>→选序列"},
+  {title:"修订模式 · 协同编辑",tag:"word",tagLabel:"Word",steps:["「审阅」→「修订」→开启后所有修改以红色标记显示","删除内容→红色删除线; 新增内容→红色下划线; 格式变更→红色气泡","审阅者逐条点击「接受」或「拒绝」→确认最终版本","「所有标记」→显示完整修改痕迹; 「无标记」→看最终结果","关闭修订: 再点一次「修订」按钮"],shortcut:"<span class='ref-shortcut'>Ctrl+Shift+E</span>→开关修订"},
+  {title:"SUMIF/SUMIFS · 条件求和",tag:"excel",tagLabel:"Excel",steps:["<b>SUMIF</b>: =SUMIF(条件列, 条件, 求和列)→单条件","<b>SUMIFS</b>: =SUMIFS(求和列, 条件列1, 条件1, 条件列2, 条件2...)→多条件","注意: SUMIFS的<b>求和列在第一个</b>参数,SUMIF的在第三个","常见考法:A列是产品,B列是销量,求\"产品X\"的总销量→SUMIF","避免用SUM+手动筛选=考试0分,必须用函数"],shortcut:"=SUMIF(A:A,\"苹果\",B:B)"},
+  {title:"图表 · 数据可视化",tag:"excel",tagLabel:"Excel",steps:["选中数据区域→「插入」→「图表」→选类型(柱状/折线/饼图)","右键图表→「选择数据」→确认行列是否正确","图表的<b>横轴标签</b>和<b>数据系列</b>可分别指定","添加图表标题/轴标题/数据标签: 点图表右上角「+」","源数据修改后图表自动更新—Excel图表与数据源是动态绑定的"],shortcut:"<span class='ref-shortcut'>Alt+F1</span>→在当前表插入图表 <span class='ref-shortcut'>F11</span>→在新表插入"},
+  {title:"查找替换 · 格式批量修改",tag:"word",tagLabel:"Word",steps:["Ctrl+H→输入查找内容→点击「更多」展开高级选项","「格式」→「字体」→设置目标格式(红色/加粗/小四等)","替换内容留空但带格式→只改格式不改文字","删除所有空行:查找^p^p替换为^p→反复执行到0个","^p=段落标记 ^t=制表符 ^g=图形 ^l=手动换行符"],shortcut:"<span class='ref-shortcut'>Ctrl+H</span>→展开更多→格式"},
+  {title:"保护工作表/工作簿",tag:"excel",tagLabel:"Excel",steps:["「审阅」→「保护工作表」→设密码→勾选允许的操作","常见设置:允许\"选定锁定单元格\"+\"选定未锁定单元格\"","保护工作簿: 「审阅」→「保护工作簿」→锁结构(不能增删移动工作表)","想让某些单元格可编辑: 先取消这些单元格的锁定(右键→设置单元格格式→保护→取消\"锁定\"→再保护工作表)"],"shortcut":""},
+  {title:"动画窗格 · 精确控制播放",tag:"ppt",tagLabel:"PPT",steps:["「动画」→「动画窗格」→打开右侧控制面板","拖拽动画条目上下排序→改变出现先后顺序","右键动画→「计时」→设置「开始:与上一动画同时/之后」(自动)或「单击时」(手动)","「延迟」=等X秒后开始;「期间」=动画持续多久","预览: 点「播放」按钮或在动画窗格底部播放全部"],shortcut:"<span class='ref-shortcut'>Alt+A</span>→<span class='ref-shortcut'>C</span>→动画窗格"},
+];
+
+function renderRefCards(){
+  const html = REF_CARDS.map(c => `
+    <div class="ref-card" onclick="this.classList.toggle('open')">
+      <div class="ref-header">
+        <span class="tag tag-${c.tag}">${c.tagLabel}</span>
+        <span class="ref-title">${c.title}</span>
+        <span class="ref-arrow">▼</span>
+      </div>
+      <div class="ref-body">
+        ${c.shortcut ? `<p style="margin-bottom:8px">🔧 ${c.shortcut}</p>` : ''}
+        ${c.steps.map((s,i)=>`<div class="ref-step"><span class="step-num">${i+1}</span><span class="step-text">${s}</span></div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('refSection').innerHTML = html;
+}
+
+// ── 标签切换 ──────────────────────────
+function switchTab(tab){
+  if(tab==='quiz'){
+    document.getElementById('quizSection').style.display='block';
+    document.getElementById('refSection').style.display='none';
+    document.getElementById('btnQuiz').className='tab-btn active';
+    document.getElementById('btnRef').className='tab-btn inactive';
+  } else {
+    document.getElementById('quizSection').style.display='none';
+    document.getElementById('refSection').style.display='block';
+    document.getElementById('btnRef').className='tab-btn active';
+    document.getElementById('btnQuiz').className='tab-btn inactive';
+  }
+}
+
+renderRefCards();
 renderQuestion();
 </script>
 </body>
