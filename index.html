@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>二级必过 · 计算机二级MS刷题</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro","PingFang SC","Microsoft YaHei",sans-serif;background:#0f0f0f;color:#e8e8e8;min-height:100vh;overflow-x:hidden}
+.app{max-width:480px;margin:0 auto;padding:16px 16px 40px}
+
+/* 头部 */
+.header{text-align:center;padding:10px 0 6px}
+.header h1{font-size:22px;font-weight:700;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header .sub{font-size:12px;color:#666;margin-top:2px}
+
+/* 积分卡片 */
+.score-bar{display:flex;gap:10px;margin:12px 0}
+.score-card{flex:1;background:#1a1a2e;border:1px solid #2a2a3e;border-radius:14px;padding:12px;text-align:center}
+.score-card .num{font-size:28px;font-weight:800}
+.score-card .label{font-size:11px;color:#888;margin-top:2px}
+.score-card.streak .num{color:#f59e0b}
+.score-card.points .num{color:#60a5fa}
+.score-card.accuracy .num{color:#34d399}
+
+/* 进度条 */
+.progress-wrap{margin:8px 0 16px}
+.progress-info{display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px}
+.progress-bar{height:6px;background:#1a1a2e;border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#60a5fa,#a78bfa);border-radius:99px;transition:width .3s}
+
+/* 题目卡片 */
+.q-card{background:#1a1a2e;border:1px solid #2a2a3e;border-radius:16px;padding:20px;margin-bottom:14px;transition:border-color .2s}
+.q-card.correct{border-color:#34d399;box-shadow:0 0 20px rgba(52,211,153,.15)}
+.q-card.wrong{border-color:#f87171;box-shadow:0 0 20px rgba(248,113,113,.15)}
+.q-num{font-size:11px;color:#666;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
+.q-text{font-size:16px;line-height:1.65;margin-bottom:16px;font-weight:500}
+
+/* 选项 */
+.options{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:center;gap:10px;padding:13px 15px;background:#111122;border:1.5px solid #2a2a3e;border-radius:12px;cursor:pointer;transition:all .15s;font-size:15px}
+.opt:hover{border-color:#4a4a6e}
+.opt.selected{border-color:#60a5fa;background:#151530}
+.opt.correct-opt{border-color:#34d399!important;background:rgba(52,211,153,.1)!important}
+.opt.wrong-opt{border-color:#f87171!important;background:rgba(248,113,113,.1)!important}
+.opt .letter{width:28px;height:28px;border-radius:50%;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;border:1px solid #2a2a3e}
+
+/* 反馈区 */
+.feedback{background:#111122;border:1px solid #2a2a3e;border-radius:14px;padding:16px;margin-bottom:14px;display:none}
+.feedback.show{display:block}
+.feedback.correct{border-color:#34d399}
+.feedback.wrong{border-color:#f87171}
+.feedback .fb-icon{font-size:40px;margin-bottom:8px}
+.feedback .fb-title{font-size:18px;font-weight:700;margin-bottom:6px}
+.feedback.correct .fb-title{color:#34d399}
+.feedback.wrong .fb-title{color:#f87171}
+.feedback .fb-explanation{font-size:14px;color:#aaa;line-height:1.6}
+
+/* 连击特效 */
+.combo-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:40px;font-weight:900;pointer-events:none;z-index:100;opacity:0;animation:comboIn .8s ease-out forwards}
+.combo-popup.fire{color:#f59e0b}
+.combo-popup.perfect{color:#a78bfa}
+@keyframes comboIn{0%{opacity:0;transform:translate(-50%,-50%) scale(0.3)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}100%{opacity:0;transform:translate(-50%,-80%) scale(1)}}
+
+/* 按钮 */
+.btn{width:100%;padding:15px;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-next{background:linear-gradient(135deg,#60a5fa,#a78bfa);color:#fff;display:none}
+.btn-next.show{display:block}
+.btn-reset{background:#1a1a2e;color:#e8e8e8;border:1px solid #2a2a3e;margin-top:10px}
+
+/* 完成页面 */
+.complete{text-align:center;padding:40px 0;display:none}
+.complete.show{display:block}
+.complete .emoji{font-size:64px;margin-bottom:16px}
+.complete .big-num{font-size:48px;font-weight:900;margin-bottom:8px}
+.complete .big-label{font-size:16px;color:#888;margin-bottom:24px}
+.complete .stats{display:flex;gap:10px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
+.complete .stat-item{background:#1a1a2e;border:1px solid #2a2a3e;border-radius:14px;padding:16px 20px;text-align:center;min-width:90px}
+.complete .stat-val{font-size:26px;font-weight:800}
+.complete .stat-lbl{font-size:11px;color:#888;margin-top:4px}
+
+/* 底部 */
+.footer{text-align:center;padding:16px;color:#555;font-size:12px}
+.footer a{color:#666;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>⚡ 二级必过</h1>
+    <div class="sub">计算机二级 MS Office 高项</div>
+  </div>
+
+  <!-- 积分面板 -->
+  <div class="score-bar">
+    <div class="score-card points"><div class="num" id="points">0</div><div class="label">🏆 积分</div></div>
+    <div class="score-card streak"><div class="num" id="streak">0</div><div class="label">🔥 连击</div></div>
+    <div class="score-card accuracy"><div class="num" id="accuracy">—</div><div class="label">✅ 正确率</div></div>
+  </div>
+
+  <!-- 进度条 -->
+  <div class="progress-wrap">
+    <div class="progress-info"><span id="progLabel">📋 每日挑战 0/20</span><span id="xpLabel">⚡ Lv.1</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- 题目区 -->
+  <div id="quizArea">
+    <div class="q-card" id="qCard">
+      <div class="q-num" id="qNum">第 1 题 · 选择题</div>
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="options"></div>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <button class="btn btn-next" id="btnNext" onclick="nextQuestion()">下一题 →</button>
+  </div>
+
+  <!-- 完成页 -->
+  <div class="complete" id="complete">
+    <div class="emoji" id="completeEmoji">🎉</div>
+    <div class="big-num" id="completeScore"></div>
+    <div class="big-label">今日挑战完成</div>
+    <div class="stats">
+      <div class="stat-item"><div class="stat-val" id="statCorrect" style="color:#34d399"></div><div class="stat-lbl">✅ 正确</div></div>
+      <div class="stat-item"><div class="stat-val" id="statWrong" style="color:#f87171"></div><div class="stat-lbl">❌ 错误</div></div>
+      <div class="stat-item"><div class="stat-val" id="statMaxStreak" style="color:#f59e0b"></div><div class="stat-lbl">🔥 最长连击</div></div>
+      <div class="stat-item"><div class="stat-val" id="statTotal" style="color:#60a5fa"></div><div class="stat-lbl">🏆 总分</div></div>
+    </div>
+    <button class="btn btn-next show" onclick="resetDaily()" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🔄 再来一轮</button>
+    <p style="color:#666;font-size:12px;margin-top:14px">明天继续挑战，连击奖励翻倍！</p>
+  </div>
+
+  <div class="footer">二级必过 · MS Office 高项 · 让刷题像打游戏</div>
+</div>
+
+<div class="combo-popup" id="comboPopup"></div>
+
+<script>
+// ── 题库 ──────────────────────────────
+const QUESTIONS = [
+  {id:1,type:"选择题",q:"在Word中，要将文档中所有\"电脑\"替换为\"计算机\"，应使用什么功能？",
+   opts:["A. 查找","B. 替换","C. 定位","D. 批注"],ans:1,explain:"「开始」→「编辑」→「替换」(Ctrl+H)，输入\"电脑\"替换为\"计算机\"，点击\"全部替换\"即可一次性完成。"},
+  {id:2,type:"选择题",q:"在Excel中，公式 =SUM(A1:A10) 的计算结果是？",
+   opts:["A. A1到A10的平均值","B. A1到A10的和","C. A1×A10","D. A1÷A10"],ans:1,explain:"SUM函数是求和函数，=SUM(A1:A10)表示将A1到A10单元格的数值相加。"},
+  {id:3,type:"选择题",q:"在PowerPoint中，哪一项功能可以为所有幻灯片应用统一的布局和配色？",
+   opts:["A. 动画","B. 幻灯片母版","C. 切换","D. 审阅"],ans:1,explain:"「视图」→「幻灯片母版」可以统一设置所有幻灯片的字体、颜色、背景、logo等——改一处，全演示文稿同步。"},
+  {id:4,type:"选择题",q:"在Excel中，以下哪个是正确的绝对引用写法？",
+   opts:["A. A1","B. #A#1","C. $A$1","D. &A&1"],ans:2,explain:"绝对引用用$锁死行和列——$A$1复制到任何单元格都不会变。$A1锁列不锁行，A$1锁行不锁列，A1行列都不锁。"},
+  {id:5,type:"选择题",q:"下列哪个不是Word中段落对齐的方式？",
+   opts:["A. 左对齐","B. 居中对齐","C. 两端对齐","D. 环绕对齐"],ans:3,explain:"Word提供5种对齐：左对齐、居中、右对齐、两端对齐、分散对齐。「环绕」是图片文字的排版方式，不是段落对齐。"},
+  {id:6,type:"选择题",q:"在Excel中，VLOOKUP函数的第一个参数是？",
+   opts:["A. 查找范围","B. 返回的列号","C. 要查找的值","D. 匹配类型"],ans:2,explain:"VLOOKUP(查找值, 查找范围, 返回列号, 匹配类型)。第一个参数是\"你要找什么\"——比如一个学号、一个产品编码。"},
+  {id:7,type:"选择题",q:"在PowerPoint中，以下哪个视图最适合调整单张幻灯片的详细内容？",
+   opts:["A. 普通视图","B. 大纲视图","C. 幻灯片浏览","D. 阅读视图"],ans:0,explain:"普通视图是默认编辑视图——左侧缩略图、中间编辑区、右侧可加备注，最常用。幻灯片浏览适合拖拽调整顺序。"},
+  {id:8,type:"选择题",q:"在Word中，要给文档添加页码，应该通过哪个菜单？",
+   opts:["A. 开始","B. 插入","C. 设计","D. 引用"],ans:1,explain:"「插入」→「页眉和页脚」→「页码」，选择位置和样式。双面打印时注意奇偶页不同位置。"},
+  {id:9,type:"选择题",q:"在Excel中，要对数据进行多条件筛选，应使用？",
+   opts:["A. 排序","B. 自动筛选","C. 高级筛选","D. 数据验证"],ans:2,explain:"自动筛选只能单列筛选。高级筛选(Ctrl+Shift+L→高级)支持多列多条件，条件写在单独区域。"},
+  {id:10,type:"选择题",q:"以下哪个不是PPT的母版类型？",
+   opts:["A. 幻灯片母版","B. 讲义母版","C. 切换母版","D. 备注母版"],ans:2,explain:"PPT有3种母版——幻灯片母版、讲义母版、备注母版。没有切换母版。切换是幻灯片之间的动画效果。"},
+  {id:11,type:"选择题",q:"在Word中，Ctrl+Enter的作用是？",
+   opts:["A. 插入分页符","B. 另起一段","C. 保存文档","D. 打印文档"],ans:0,explain:"Ctrl+Enter = 手动分页符，强制从下一页开始。不同于自然换页——删不掉、看不到，在草稿视图下显示为虚线。"},
+  {id:12,type:"选择题",q:"在Excel中，数据透视表的主要功能是？",
+   opts:["A. 美化表格","B. 汇总分析大量数据","C. 输入数据","D. 打印表格"],ans:1,explain:"数据透视表是Excel最强分析工具——拖拽字段即可对几万行数据做分类汇总、交叉分析、计算占比。二级操作题必考。"},
+  {id:13,type:"选择题",q:"在PowerPoint中，想要让一个元素在点击时飞入，应该使用？",
+   opts:["A. 切换","B. 动画","C. 动作","D. 超链接"],ans:1,explain:"「动画」针对幻灯片内单个元素的进出效果。「切换」是幻灯片之间的翻页效果。考试常混着考。"},
+  {id:14,type:"选择题",q:"在Word中，格式刷的快捷键是？",
+   opts:["A. Ctrl+B","B. Ctrl+Shift+C","C. Ctrl+Shift+V","D. Ctrl+D"],ans:1,explain:"Ctrl+Shift+C复制格式，Ctrl+Shift+V粘贴格式。双击格式刷可连续刷多个位置，按ESC退出。"},
+  {id:15,type:"选择题",q:"在Excel中，公式 =IF(A1>60,\"及格\",\"不及格\") 是什么类型的函数？",
+   opts:["A. 数学函数","B. 统计函数","C. 逻辑函数","D. 文本函数"],ans:2,explain:"IF(条件, 真时返回值, 假时返回值)是逻辑判断函数。二级考试最爱考嵌套IF——IF里面套IF，最多7层。"},
+  {id:16,type:"选择题",q:"在PPT中，要从第二张幻灯片开始编号，应该在哪里设置？",
+   opts:["A. 页脚","B. 幻灯片母版","C. 页面设置","D. 幻灯片编号设置"],ans:2,explain:"「设计」→「幻灯片大小」→「页面设置」→ 起始编号改为0（这样第一页显示0可隐藏，第二页从1开始）。"},
+  {id:17,type:"选择题",q:"在Word中，要把一段文字变成两栏，应该使用什么功能？",
+   opts:["A. 表格","B. 分栏","C. 制表位","D. 文本框"],ans:1,explain:"「布局」→「页面设置」→「分栏」→选两栏。注意：分栏只在页面视图下可见，普通视图显示为单栏。"},
+  {id:18,type:"选择题",q:"在Excel中，单元格引用 =Sheet2!B3 表示什么？",
+   opts:["A. 当前表的B3","B. Sheet2工作表的B3单元格","C. 工作簿外部的引用","D. 错误公式"],ans:1,explain:"跨工作表引用格式：工作表名!单元格。如果工作表名含空格或数字，需用单引号包裹：='1月'!B3。"},
+  {id:19,type:"选择题",q:"在Word中，要给一段文字添加红色底纹，应该使用？",
+   opts:["A. 字体颜色","B. 突出显示","C. 边框和底纹","D. 页面颜色"],ans:2,explain:"「开始」→「段落」→「边框和底纹」→「底纹」→选填充色。别跟\"突出显示\"搞混——后者只是临时标记，打印不出来。"},
+  {id:20,type:"选择题",q:"在Excel中，COUNTIF函数的作用是？",
+   opts:["A. 对所有单元格求和","B. 计算满足条件的单元格个数","C. 计算平均值","D. 计算最大值"],ans:1,explain:"COUNTIF(范围, 条件)。比如COUNTIF(B2:B100,\">60\") 统计B列中大于60的有几个。搭配SUMIF一起考，格式一样。"}
+];
+
+// ── 状态 ──────────────────────────────
+let state = {
+  idx:0, correct:0, wrong:0,
+  streak:0, maxStreak:0, points:0,
+  answered:false, dailyDone:false,
+  xp:0, level:1
+};
+
+const DAILY_LIMIT = 20;
+const shuffled = [...QUESTIONS].sort(()=>Math.random()-.5).slice(0, DAILY_LIMIT);
+
+// ── 渲染 ──────────────────────────────
+function renderQuestion(){
+  if(state.idx >= shuffled.length){ showComplete(); return; }
+  const q = shuffled[state.idx];
+  state.answered = false;
+  document.getElementById('qCard').className = 'q-card';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('btnNext').className = 'btn btn-next';
+  document.getElementById('qNum').textContent = `第 ${state.idx+1} 题 · ${q.type}`;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('progLabel').textContent = `📋 今日挑战 ${state.idx+1}/${DAILY_LIMIT}`;
+  document.getElementById('progFill').style.width = ((state.idx)/DAILY_LIMIT*100)+'%';
+
+  const optsEl = document.getElementById('options');
+  optsEl.innerHTML = q.opts.map((o,i)=>`
+    <div class="opt" onclick="selectAnswer(${i})" data-idx="${i}">
+      <span class="letter">${'ABCD'[i]}</span>${o.substring(2).trim()}
+    </div>
+  `).join('');
+
+  updateScoreBar();
+}
+
+function selectAnswer(idx){
+  if(state.answered) return;
+  state.answered = true;
+  const q = shuffled[state.idx];
+  const correct = q.ans;
+  const opts = document.querySelectorAll('.opt');
+
+  opts.forEach(o=>{ o.style.pointerEvents='none' });
+  opts[correct].classList.add('correct-opt');
+
+  const fb = document.getElementById('feedback');
+  const card = document.getElementById('qCard');
+
+  if(idx === correct){
+    state.correct++; state.streak++; state.points += 10 + state.streak*2;
+    if(state.streak > state.maxStreak) state.maxStreak = state.streak;
+    card.classList.add('correct');
+    fb.className = 'feedback correct show';
+    fb.innerHTML = `<div class="fb-icon">✅</div><div class="fb-title">正确！+${10+state.streak*2}分</div><div class="fb-explanation">${q.explain}</div>`;
+    showCombo(state.streak);
+    gainXP(5 + state.streak);
+  } else {
+    opts[idx].classList.add('wrong-opt');
+    state.wrong++; state.streak = 0;
+    card.classList.add('wrong');
+    fb.className = 'feedback wrong show';
+    fb.innerHTML = `<div class="fb-icon">❌</div><div class="fb-title">错误！正确答案是 ${'ABCD'[correct]}</div><div class="fb-explanation">${q.explain}</div>`;
+    gainXP(1);
+  }
+
+  document.getElementById('btnNext').classList.add('show');
+  updateScoreBar();
+}
+
+function showCombo(s){
+  if(s<3) return;
+  const p = document.getElementById('comboPopup');
+  const emojis = {3:'🔥 三连击',5:'⚡ 五连击',8:'💥 八连击',10:'👑 完美十连',15:'🌟 神级连击'};
+  let text = '';
+  for(let [k,v] of Object.entries(emojis)){ if(s>=parseInt(k)) text=v; }
+  p.textContent = text;
+  p.className = `combo-popup ${s>=10?'perfect':'fire'}`;
+  p.style.animation = 'none';
+  void p.offsetWidth;
+  p.style.animation = 'comboIn .8s ease-out forwards';
+}
+
+function gainXP(amt){
+  state.xp+=amt;
+  const lvl = Math.floor(state.xp/50)+1;
+  if(lvl>state.level){ state.level=lvl; }
+  document.getElementById('xpLabel').textContent = `⚡ Lv.${state.level}`;
+}
+
+function nextQuestion(){
+  state.idx++;
+  if(state.idx>=shuffled.length){ showComplete(); return; }
+  renderQuestion();
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('btnNext').className = 'btn btn-next';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateScoreBar(){
+  document.getElementById('points').textContent = state.points;
+  document.getElementById('streak').textContent = state.streak;
+  const total = state.correct+state.wrong;
+  document.getElementById('accuracy').textContent = total ? Math.round(state.correct/total*100)+'%' : '—';
+}
+
+function showComplete(){
+  document.getElementById('quizArea').style.display = 'none';
+  const comp = document.getElementById('complete');
+  comp.classList.add('show');
+  const acc = state.correct+state.wrong > 0 ? Math.round(state.correct/(state.correct+state.wrong)*100) : 0;
+  document.getElementById('completeEmoji').textContent = acc>=90?'🏆':acc>=70?'🎉':acc>=50?'💪':'📚';
+  document.getElementById('completeScore').textContent = state.points+' 分';
+  document.getElementById('statCorrect').textContent = state.correct;
+  document.getElementById('statWrong').textContent = state.wrong;
+  document.getElementById('statMaxStreak').textContent = state.maxStreak;
+  document.getElementById('statTotal').textContent = state.points;
+  document.getElementById('progFill').style.width = '100%';
+  document.getElementById('progLabel').textContent = '📋 今日挑战完成！';
+}
+
+function resetDaily(){
+  state = {idx:0,correct:0,wrong:0,streak:0,maxStreak:0,points:0,answered:false,dailyDone:false,xp:0,level:1};
+  document.getElementById('quizArea').style.display = 'block';
+  document.getElementById('complete').className = 'complete';
+  document.getElementById('btnNext').className = 'btn btn-next';
+  updateScoreBar();
+  document.getElementById('xpLabel').textContent = '⚡ Lv.1';
+  renderQuestion();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
